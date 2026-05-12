@@ -11,7 +11,8 @@ export const AVAILABLE_TRANSPORTS: ReadonlyArray<{
 ];
 const DEFAULT_WISP_URL = import.meta.env.VITE_WISP_URL;
 const DEFAULT_TRANSPORT: AvailableTransports = "libcurl";
-const DEFAULT_HOME_URL = "https://google.com";
+const initialUrl = new URL(window.location.href).searchParams.get("url");
+const DEFAULT_HOME_URL = initialUrl || "https://example.com";
 const DEFAULT_MAX_REQUESTS = 200;
 
 export const demoSettingsStore = createStore(

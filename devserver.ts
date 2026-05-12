@@ -29,13 +29,20 @@ const branch = execSync("git rev-parse --abbrev-ref HEAD", {
 const packagejson = JSON.parse(await fs.readFile("./package.json", "utf-8"));
 const version = packagejson.version;
 
-const DEMO_PORT = process.env.DEMO_PORT || 4141;
+const DEMO_PORT = process.env.DEMO_PORT || process.env.PORT || 3500;
 const WISP_PORT = process.env.WISP_PORT || 4142;
+const PUBLIC_ORIGIN = process.env.PUBLIC_ORIGIN || `http://localhost:${DEMO_PORT}`;
+const PUBLIC_BASE = process.env.PUBLIC_BASE || "/proxy/";
 
 if (process.env.VITE_WISP_URL) {
 	process.env.VITE_WISP_URL = normalizeWebsocketUrl(process.env.VITE_WISP_URL);
 } else {
-	process.env.VITE_WISP_URL = `ws://localhost:${WISP_PORT}/`;
+	const publicUrl = new URL(PUBLIC_ORIGIN);
+	publicUrl.protocol = publicUrl.protocol === "https:" ? "wss:" : "ws:";
+	publicUrl.pathname = `${PUBLIC_BASE.replace(/\/$/, "")}/wisp/`;
+	publicUrl.search = "";
+	publicUrl.hash = "";
+	process.env.VITE_WISP_URL = publicUrl.toString();
 }
 
 const wispserver = http.createServer((req, res) => {
@@ -56,6 +63,7 @@ const server = await createServer({
 	root: "./packages/demo",
 	server: {
 		port: Number(DEMO_PORT),
+		host: "0.0.0.0",
 		strictPort: true,
 	},
 });

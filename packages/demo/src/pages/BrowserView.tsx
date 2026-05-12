@@ -151,7 +151,7 @@ const BrowserView: Component<
 							[
 								"Location",
 								new URL(
-									`/?goto=${encodeURIComponent(context.parsed.url.href)}`,
+									`./?goto=${encodeURIComponent(context.parsed.url.href)}`,
 									location.origin
 								).href,
 							],

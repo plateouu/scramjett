@@ -1,6 +1,7 @@
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
 export default {
+	base: process.env.PUBLIC_BASE || "/",
 	plugins: [
 		viteStaticCopy({
 			structured: false,
