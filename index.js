@@ -1,4 +1,6 @@
 import { spawn } from "node:child_process"
+import { existsSync, copyFileSync, mkdirSync } from "node:fs"
+import { dirname } from "node:path"
 
 const env = {
   ...process.env,
@@ -31,6 +33,24 @@ function run(command, args) {
 await run("corepack", ["enable"])
 await run("corepack", ["prepare", "pnpm@10.12.1", "--activate"])
 await run("corepack", ["pnpm", "install"])
+
+const wasmTarget = "packages/core/dist/scramjet.wasm"
+const wasmSources = [
+  "node_modules/@mercuryworkshop/scramjet/dist/scramjet.wasm",
+  "node_modules/@mercuryworkshop/scramjet/dist/scramjet.wasm.wasm",
+]
+
+if (!existsSync(wasmTarget)) {
+  const wasmSource = wasmSources.find((source) => existsSync(source))
+
+  if (wasmSource) {
+    mkdirSync(dirname(wasmTarget), { recursive: true })
+    copyFileSync(wasmSource, wasmTarget)
+    console.log(`Seeded ${wasmTarget} from ${wasmSource}`)
+  } else {
+    console.warn(`Could not seed ${wasmTarget}; checked ${wasmSources.join(", ")}`)
+  }
+}
 
 const dev = spawn("corepack", ["pnpm", "run", "dev"], {
   stdio: "inherit",
